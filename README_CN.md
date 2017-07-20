@@ -1,5 +1,5 @@
 # EasyToggle
-EasyToggle是一个Kotlin写的轻量级的开关控件，默认设置下它的行为跟ios的开关控件是一毛一样的，当然你也可以通过它提供的属性自己设计开关的外观。当手指在不同的范围内触摸时，EasyToggle会有不同的表现，这样的用户体验还是挺不错的。
+EasyToggle是一个Kotlin写的轻量级的开关控件，只有一个文件，默认设置下它的行为跟ios的开关控件是一毛一样的，当然你也可以通过它提供的属性自己设计开关的外观。当手指在不同的范围内触摸时，EasyToggle会有不同的表现，这样的用户体验还是挺不错的。
 
 ## 演示
 ![easytoggle](https://github.com/huzenan/EasyToggle/blob/master/screeshots/easytoggle.gif) 
