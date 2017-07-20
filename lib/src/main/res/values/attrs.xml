@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="EasyToggle">
+        <attr name="etLength" format="dimension"/>
+        <attr name="etRadius" format="dimension"/>
+        <attr name="etRange" format="dimension"/>
+        <attr name="etBgOffColor" format="color"/>
+        <attr name="etBgOnColor" format="color"/>
+        <attr name="etBgStrokeWidth" format="dimension"/>
+        <attr name="etBgTopColor" format="color"/>
+        <attr name="etButtonColor" format="color"/>
+        <attr name="etButtonStrokeColor" format="color"/>
+        <attr name="etButtonStrokeWidth" format="dimension"/>
+    </declare-styleable>
+</resources>
