@@ -1,5 +1,8 @@
 # EasyToggle
-A light toggle view for Android in Kotlin, it acts like ios toggle style in default settings, also you can design it using all the given attributes. The toggle view acts differently while touching different ranges around the button, it performs good experience for user.
+
+([ 我爱中文 ](./README_CN.md))
+
+A light toggle view for Android in Kotlin, with only 1 file, it acts like ios toggle style in default settings, also you can design it using all the given attributes. The toggle view acts differently while touching different ranges around the button, it performs good experience for user.
 
 ## ScreenShots
 ![easytoggle](https://github.com/huzenan/EasyToggle/blob/master/screeshots/easytoggle.gif) 
