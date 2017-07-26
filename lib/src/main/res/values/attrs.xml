@@ -11,5 +11,6 @@
         <attr name="etButtonColor" format="color"/>
         <attr name="etButtonStrokeColor" format="color"/>
         <attr name="etButtonStrokeWidth" format="dimension"/>
+        <attr name="etShadowOffsetY" format="dimension"/>
     </declare-styleable>
 </resources>

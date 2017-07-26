@@ -26,6 +26,7 @@ class EasyToggle : View {
     private var buttonColor = 0
     private var buttonStrokeColor = 0
     private var buttonStrokeWidth = 0
+    private var shadowOffsetY = 0
 
     private var cx = 0f
     private var cy = 0f
@@ -50,8 +51,8 @@ class EasyToggle : View {
 
     private var bgColorAnimator: ValueAnimator? = null
     private var bgColorFraction = 1f
-    private var bgTopExtensionAnimator: ValueAnimator? = null // 0->1 means full->none
-    private var bgTopExtensionValue = 0f
+    private var bgTopExtensionAnimator: ValueAnimator? = null
+    private var bgTopExtensionValue = 1f
     private var buttonExtensionAnimator: ValueAnimator? = null
     private var buttonExtensionValue = 0f
     private var buttonMoveAnimator: ValueAnimator? = null
@@ -90,8 +91,19 @@ class EasyToggle : View {
             buttonStrokeColor = it.getColor(R.styleable.EasyToggle_etButtonStrokeColor, Color.parseColor("#FFE4E4E4"))
             buttonStrokeWidth = it.getDimensionPixelSize(R.styleable.EasyToggle_etButtonStrokeWidth, TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, 0.1f, context?.resources?.displayMetrics).toInt())
+            shadowOffsetY = it.getDimensionPixelSize(R.styleable.EasyToggle_etShadowOffsetY, TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, -1f, context?.resources?.displayMetrics).toInt())
             it.recycle()
         }
+
+        buttonStrokeWidth =
+                if (buttonStrokeWidth / 2f > radius - bgStrokeWidth / 2f)
+                    (radius - bgStrokeWidth / 2) * 2
+                else
+                    buttonStrokeWidth
+
+        if (shadowOffsetY < 0)
+            shadowOffsetY = bgStrokeWidth * 2 // default shadow offset y
 
         with(bgPaint) {
             isAntiAlias = true
@@ -114,8 +126,9 @@ class EasyToggle : View {
 
         with(shadowPaint) {
             isAntiAlias = true
-            style = Paint.Style.FILL
+            style = Paint.Style.FILL_AND_STROKE // this looks like wrong in xml preview, actually it is correct
             color = Color.parseColor("#11333333")
+            strokeWidth = buttonStrokeWidth.toFloat()
         }
 
         with(buttonStrokePaint) {
@@ -129,13 +142,25 @@ class EasyToggle : View {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var widthSize: Int = MeasureSpec.getSize(widthMeasureSpec)
         var mode: Int? = MeasureSpec.getMode(widthMeasureSpec)
-        if (mode != MeasureSpec.EXACTLY)
-            widthSize = paddingLeft + paddingRight + radius * 2 + length + bgStrokeWidth
+        if (mode != MeasureSpec.EXACTLY) {
+            widthSize = paddingLeft + paddingRight + radius * 2 + length
+
+            if (bgStrokeWidth > buttonStrokeWidth / 2f)
+                widthSize += bgStrokeWidth
+            else
+                widthSize += buttonStrokeWidth - bgStrokeWidth
+        }
 
         var heightSize: Int = MeasureSpec.getSize(heightMeasureSpec)
         mode = MeasureSpec.getMode(heightMeasureSpec)
-        if (mode != MeasureSpec.EXACTLY)
-            heightSize = paddingTop + paddingBottom + radius * 2 + bgStrokeWidth * 3
+        if (mode != MeasureSpec.EXACTLY) {
+            heightSize = paddingTop + paddingBottom + radius * 2
+
+            if (bgStrokeWidth > buttonStrokeWidth / 2f + Math.abs(shadowOffsetY))
+                heightSize += bgStrokeWidth
+            else
+                heightSize += buttonStrokeWidth - bgStrokeWidth + Math.abs(shadowOffsetY) * 2
+        }
 
         val halfStrokeWidth = bgStrokeWidth / 2f
 
@@ -198,7 +223,6 @@ class EasyToggle : View {
     }
 
     override fun onDraw(canvas: Canvas?) {
-        val halfLength = length / 2f
         val halfStrokeWidth = bgStrokeWidth / 2f
         val halfExtensionLength = buttonExtensionLength * buttonExtensionValue / 2f
 
@@ -227,21 +251,18 @@ class EasyToggle : View {
         // bg top
         with(bgTopPath) {
             reset()
-            moveTo(bgTopRectM.left + halfLength * bgTopExtensionValue, bgTopRectM.top + radius * bgTopExtensionValue)
-            lineTo(bgTopRectM.right - halfLength * bgTopExtensionValue, bgTopRectM.top + radius * bgTopExtensionValue)
-            arcTo(bgTopRectR.scale(scale = bgTopExtensionValue,
-                    offsetX = -halfLength * bgTopExtensionValue,
-                    halfWidth = radius - halfStrokeWidth,
-                    halfHeight = radius - halfStrokeWidth),
-                    -90f, 180f, false)
-            lineTo(bgTopRectM.left + halfLength * bgTopExtensionValue, bgTopRectM.bottom - radius * bgTopExtensionValue)
-            arcTo(bgTopRectL.scale(scale = bgTopExtensionValue,
-                    offsetX = halfLength * bgTopExtensionValue,
-                    halfWidth = radius - halfStrokeWidth,
-                    halfHeight = radius - halfStrokeWidth),
-                    90f, 180f, false)
+            moveTo(bgTopRectM.left, bgTopRectM.top)
+            lineTo(bgTopRectM.right, bgTopRectM.top)
+            arcTo(bgTopRectR, -90f, 180f, false)
+            lineTo(bgTopRectM.left, bgTopRectM.bottom)
+            arcTo(bgTopRectL, 90f, 180f, false)
         }
-        canvas?.drawPath(bgTopPath, bgTopPaint)
+        canvas?.let {
+            it.save()
+            it.scale(bgTopExtensionValue, bgTopExtensionValue, cx, cy)
+            it.drawPath(bgTopPath, bgTopPaint)
+            it.restore()
+        }
 
         // button
         // extension
@@ -272,9 +293,10 @@ class EasyToggle : View {
         }
 
         canvas?.let {
-            it.translate(0f, bgStrokeWidth * 2f) // move the canvas to draw shadow
+            it.save()
+            it.translate(0f, shadowOffsetY.toFloat()) // move the canvas to draw shadow
             it.drawPath(buttonPath, shadowPaint)
-            it.translate(0f, -bgStrokeWidth * 2f) // restore y
+            it.restore()
             it.drawPath(buttonPath, buttonPaint)
             it.drawPath(buttonPath, buttonStrokePaint)
         }
@@ -297,7 +319,7 @@ class EasyToggle : View {
         doButtonExtensionAnimation(0f, 1f)
 
         if (currentState == STATE_OFF)
-            doBgTopExtensionAnimation(0f, 1f)
+            doBgTopExtensionAnimation(1f, 0f)
     }
 
     private fun doActionMove(event: MotionEvent?) {
@@ -313,7 +335,7 @@ class EasyToggle : View {
             toggle()
 
             if (isTouchOutOfRange) {
-                doBgTopExtensionAnimation(1f, 0f)
+                doBgTopExtensionAnimation(0f, 1f)
             } else if (hasBeenTouchOutOfRange) {
                 hasBeenTouchOutOfRange = false
                 doButtonExtensionAnimation(0f, 1f)
@@ -324,24 +346,21 @@ class EasyToggle : View {
             toggle()
 
             if (isTouchOutOfRange) {
-                doBgTopExtensionAnimation(0f, 1f)
+                doBgTopExtensionAnimation(1f, 0f)
             } else if (hasBeenTouchOutOfRange) {
                 hasBeenTouchOutOfRange = false
                 doButtonExtensionAnimation(0f, 1f)
-                doBgTopExtensionAnimation(0f, 1f)
+                doBgTopExtensionAnimation(1f, 0f)
             }
         }
 
         if (!hasBeenTouchOutOfRange && Math.abs(offsetY) > range) {
             hasBeenTouchOutOfRange = true
             doButtonExtensionAnimation(1f, 0f)
-            if (!hasToggled) {
+            if (!hasToggled)
                 toggle()
-                if (currentState == STATE_OFF)
-                    doBgTopExtensionAnimation(1f, 0f)
-            } else if (currentState == STATE_OFF) {
-                doBgTopExtensionAnimation(1f, 0f)
-            }
+            if (currentState == STATE_OFF)
+                doBgTopExtensionAnimation(0f, 1f)
         }
     }
 
@@ -353,7 +372,7 @@ class EasyToggle : View {
             toggle()
 
         if (!hasBeenTouchOutOfRange && currentState == STATE_OFF)
-            doBgTopExtensionAnimation(1f, 0f)
+            doBgTopExtensionAnimation(0f, 1f)
 
         reset()
     }
@@ -456,20 +475,9 @@ class EasyToggle : View {
         return Color.argb(alphaCurrent, redCurrent, greenCurrent, blueCurrent)
     }
 
-    // This will return a new RectF which has been scaled and offset
-    private fun RectF.scale(scale: Float,
-                            offsetX: Float = 0f,
-                            offsetY: Float = 0f,
-                            halfWidth: Float = (this.right - this.left) / 2f,
-                            halfHeight: Float = (this.bottom - this.top) / 2f): RectF {
-        val newRect: RectF = RectF()
-        newRect.left = this.left + halfWidth * scale + offsetX
-        newRect.top = this.top + halfHeight * scale + offsetY
-        newRect.right = this.right - halfWidth * scale + offsetX
-        newRect.bottom = this.bottom - halfHeight * scale + offsetY
-        return newRect
-    }
-
+    /**
+     * Set the listener of toggle, true: on, false: off
+     */
     fun setOnToggledListener(l: (Boolean) -> Unit) {
         this.onToggledListener = l
     }
