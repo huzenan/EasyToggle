@@ -37,3 +37,4 @@ EasyToggle是一个Kotlin写的轻量级的开关控件，只有一个文件，�
 | etButtonColor       | 按钮的颜色 |
 | etButtonStrokeColor | 按钮边框的颜色 |
 | etButtonStrokeWidth | 按钮边框的宽度 |
+| etShadowOffsetY     | 按钮影子在Y方向上的偏移值，大于0 |

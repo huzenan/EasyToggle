@@ -40,3 +40,4 @@ Using lambda, setting the listener is also very easy.
 | etButtonColor       | color of the button |
 | etButtonStrokeColor | color of stroke of the button |
 | etButtonStrokeWidth | stroke width of the button |
+| etShadowOffsetY     | offsetY of shadow, greater than 0 |
