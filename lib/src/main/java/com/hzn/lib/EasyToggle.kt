@@ -3,6 +3,8 @@ package com.hzn.lib
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -15,6 +17,11 @@ import android.view.View
  * Created by huzn on 2017/7/17.
  */
 class EasyToggle : View {
+
+    companion object {
+        private const val KEY_CURRENT_STATE = "key_state"
+        private const val KEY_SUPER_STATE = "key_super_state"
+    }
 
     private var length = 0
     private var radius = 0
@@ -384,7 +391,7 @@ class EasyToggle : View {
         hasBeenTouchOutOfRange = false
     }
 
-    fun toggle() {
+    private fun toggle() {
         hasToggled = true
 
         val startMove: Float
@@ -420,6 +427,13 @@ class EasyToggle : View {
         }
 
         onToggledListener?.invoke(currentState == STATE_ON)
+    }
+
+    private fun toggleImmediately() {
+        bgColorFraction = 1f
+        bgTopExtensionValue = if (currentState == STATE_OFF) 1f else 0f
+        buttonExtensionValue = 0f
+        buttonMoveValue = 0f
     }
 
     private fun doButtonExtensionAnimation(start: Float, end: Float) {
@@ -480,5 +494,21 @@ class EasyToggle : View {
      */
     fun setOnToggledListener(l: (Boolean) -> Unit) {
         this.onToggledListener = l
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        return Bundle().apply {
+            putInt(KEY_CURRENT_STATE, currentState)
+            putParcelable(KEY_SUPER_STATE, super.onSaveInstanceState())
+        }
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state is Bundle) {
+            super.onRestoreInstanceState(state.getParcelable(KEY_SUPER_STATE))
+            currentState = state.getInt(KEY_CURRENT_STATE)
+            lastState = currentState
+            toggleImmediately()
+        }
     }
 }
