@@ -5,6 +5,23 @@ EasyToggle是一个Kotlin写的轻量级的开关控件，只有一个文件，�
 ![easytoggle](https://github.com/huzenan/EasyToggle/blob/master/screeshots/easytoggle.gif) 
 
 ## 用法
+根目录下的 build.gradle 添加jitpack:
+```xml
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+app的 build.gradle 添加 dependency:
+```xml
+dependencies {
+    compile 'com.github.huzenan:EasyToggle:v1.0.0'
+}
+```
+
 >layout
 
 布局中非常简单，如果你正好想要的是一个ios效果的开关，那你在布局文件中无需做任何设置。
