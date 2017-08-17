@@ -8,6 +8,23 @@ A light toggle view for Android in Kotlin, with only 1 file, it acts like ios to
 ![easytoggle](https://github.com/huzenan/EasyToggle/blob/master/screeshots/easytoggle.gif) 
 
 ## Usage
+Add to your root build.gradle:
+```xml
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+Add the dependency:
+```xml
+dependencies {
+    compile 'com.github.huzenan:EasyToggle:v1.0.0'
+}
+```
+
 >layout
 
 The layout is very simple, if you want exactly a ios style toggle, nothing need to be set in your layout file.
